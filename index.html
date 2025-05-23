@@ -1,34 +1,148 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Kira Hari Kelewatan</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <title>APPL ETA</title>
+  <style>
     body {
-        background-color: lightblue;
-        text-align: center;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f3e8ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    h1 {
-        color: navy;
-    }
-</style>
+    .app-container {
+      background: white;
+      width: 360px;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(to right, #9f7aea, #805ad5);
+      color: white;
+      padding: 2rem;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .form-section {
+      padding: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .btn {
+      background: #805ad5;
+      color: white;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      width: 100%;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #6b46c1;
+    }
+    .result {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #4a5568;
+    }
+  </style>
 </head>
 <body>
-  <h1>Kira Hari Kelewatan Hantar Item APPL</h1>
+  <div class="app-container">
+    <div class="header">
+      <h1>Kira Hari Kelewatan</h1>
+    </div>
+    <div class="form-section">
+      <div class="form-group">
+        <label for="lpoDate">Tarikh LPO</label>
+        <input type="date" id="lpoDate" />
+      </div>
+      <div class="form-group">
+        <label for="receivedDate">Tarikh Terima</label>
+        <input type="date" id="receivedDate" />
+      </div>
+      <button class="btn" onclick="kiraKelewatan()">KIRA</button>
+      <div class="result" id="result"></div>
+    </div>
+  </div>
 
-  <label>Tarikh LPO:
-    <input type="date" id="lpoDate">
-  </label><br><br>
+  <script>
+    async function kiraKelewatan() {
+      const lpo = new Date(document.getElementById('lpoDate').value);
+      const received = new Date(document.getElementById('receivedDate').value);
 
-  <label>Tarikh Terima Barang:
-    <input type="date" id="receivedDate">
-  </label><br><br>
+      if (isNaN(lpo) || isNaN(received)) {
+        document.getElementById('result').textContent = 'Sila pilih kedua-dua tarikh';
+        return;
+      }
 
-  <button onclick="kiraKelewatan()">Kira</button>
+      // Hari bermula dari hari selepas LPO
+      const start = new Date(lpo);
+      start.setDate(start.getDate() + 1);
 
-  <p id="result"></p>
+      // Kirakan 7 hari bekerja tanpa Sabtu, Ahad, dan cuti
+      const cuti = await ambilCuti();
+      let kerja = 0;
+      let expectedDate = new Date(start);
+
+      while (kerja < 7) {
+        const day = expectedDate.getDay();
+        const dateStr = expectedDate.toISOString().split('T')[0];
+        if (day !== 0 && day !== 6 && !cuti.includes(dateStr)) {
+          kerja++;
+        }
+        if (kerja < 7) expectedDate.setDate(expectedDate.getDate() + 1);
+      }
+
+      // Kirakan hari lewat: semua hari termasuk sabtu ahad & cuti
+      const diffMs = received - expectedDate;
+      const daysLate = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      const result = daysLate > 0
+        ? `Lewat ${daysLate} hari (Tarikh patut hantar: ${expectedDate.toISOString().split('T')[0]})`
+        : `Tidak lewat (Tarikh patut hantar: ${expectedDate.toISOString().split('T')[0]})`;
+
+      document.getElementById('result').textContent = result;
+    }
+
+    async function ambilCuti() {
+      // Data statik untuk demo – ganti dengan panggil API kalau perlu
+      return [
+        "2025-04-26", // contoh cuti umum atau negeri
+        "2025-05-01",
+        "2025-05-17"
+      ];
+    }
+  </script>
+</body>
+</html>
 
   <label>Unit Farmasi Logistik, PKDAG</label>
   <script src="/APPL-eta/app.js"></script>
