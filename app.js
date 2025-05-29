@@ -1,6 +1,7 @@
 const cutiUmum = [
   '2025-05-01', // Hari Pekerja
-  '2025-05-17', // Hari Wesak
+  '2025-05-12', // Hari Wesak
+  '2025-06-02', // Hari Cuti YDPA
   // Tambah lagi cuti umum + cuti Melaka sini
 ];
 
